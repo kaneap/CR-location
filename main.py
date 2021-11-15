@@ -9,10 +9,10 @@ pi = np.pi
 plt.rcParams['figure.figsize'] = 15, 17
 
 #Next define the pixel to meter ratio, scanner resolution and a function to plot the robot in the map.
-px_size = # in m
+px_size = 0.04 # in m
 pxpm = 1/px_size
-scannerres = # in degree
-max_range = # in m
+scannerres = 2 # in degree
+max_range = 12 # in m
 
 robot_radius = 12 # approximation from picture, in pixels
 
