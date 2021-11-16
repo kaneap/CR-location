@@ -6,25 +6,6 @@ import numpy as np
 
 warnings.simplefilter("ignore")
 pi = np.pi
-<<<<<<< HEAD
-plt.rcParams['figure.figsize'] = 15, 17
-
-#Next define the pixel to meter ratio, scanner resolution and a function to plot the robot in the map.
-px_size = 0.04 # in m
-pxpm = 1/px_size
-scannerres = 2 # in degree
-max_range = 12 # in m
-
-robot_radius = 12 # approximation from picture, in pixels
-
-### this function plots a visualization of the robot
-### pose has to be [x,y,theta], c is the color as string (e.g. "steelblue")
-def plotRobotPose(pose, c = "steelblue"):
-    plt.plot([pose[1], pose[1] + 18*np.sin(np.deg2rad(pose[2]))], # 18 pixels is just the length of the heading direction line (no deeper meaning)
-             [pose[0] , pose[0] + 18*np.cos(np.deg2rad(pose[2]))], 
-                color= "black", linewidth = 3.5)
-    circle=plt.Circle((pose[1],pose[0]),robot_radius,facecolor=c, linewidth = 3.5, edgecolor = "black",fill=True)
-=======
 plt.rcParams["figure.figsize"] = 15, 17
 
 # Next define the pixel to meter ratio, scanner resolution and a function to plot the robot in the map.
@@ -55,7 +36,6 @@ def plotRobotPose(pose, c="steelblue"):
         edgecolor="black",
         fill=True,
     )
->>>>>>> a0ab4b1a0b6d8ea9fda65643e249336295e8a76f
     plt.gcf().gca().add_artist(circle)
 
 
@@ -68,13 +48,14 @@ def linehigh(pose, slope, m):
     current_col_index = float(pose[1])
     col_step_size = float(slope[0]) / float(slope[1]) if slope[1] != 0 else 0.0
     row_step_direction = -1 if pose[0] > row2index else 1
+    print(str(pose[0]) + ' - ' + str(row2index))
     for current_row_index in range(pose[0], row2index, row_step_direction):
         number_of_pixels_walked += 1
         if m[current_row_index][int(round(current_col_index))] != 255.0:
             m[current_row_index][int(round(current_col_index))] = 250.0
         else:
             break
-        col_step_direction = -1 if pose[0] < col2index else 1
+        col_step_direction = 1 if pose[1] < col2index else -1
         current_col_index += abs(col_step_size) * col_step_direction
         if number_of_pixels_walked == max_range_in_pixels:
             break
@@ -93,10 +74,11 @@ def linelow(pose, slope, m):
             m[int(round(current_row_index))][currentColIndex] = 250.0
         else:
             break
-        row_step_direction = -1 if pose[1] < row2index else 1
+        row_step_direction = 1 if pose[0] < row2index else -1
         current_row_index += abs(row_step_size) * row_step_direction
         if number_of_pixels_walked == max_range_in_pixels:
             break
+    
 
 
 def line(pose, slope, m):
@@ -120,16 +102,17 @@ m = np.ones_like(m) * 255 - m
 
 # please use this pose for the scanning and for the endpoint model in task 4.2
 pose = np.array([215, 375, 240])
-
-for slope in range(240-125, 240+126, 2):
-    col2index = pose[0] + int(np.cos(slope * np.pi / 125.0) * (1200 / 4))
-    row2index = pose[1] - int(np.sin(slope * np.pi / 125.0) * (1200 / 4))
-    diff_col_index = pose[0] - col2index
-    diff_row_index = pose[1] - row2index
+startDegree = pose[2] - 125
+endDegree = pose[2] + 126
+for slope in range(startDegree,endDegree,scannerres): #range(240-125, 240+126, 2):
+    row2index = pose[0] + int(np.cos(slope * np.pi / 180.0) * (1200 / 4))
+    col2index = pose[1] + int(np.sin(slope * np.pi / 180.0) * (1200 / 4))
+    diff_row_index = pose[0] - row2index
+    diff_col_index = pose[1] - col2index
     line(pose, [diff_col_index, diff_row_index], m)
 
 # display the map and the pose
 plt.imshow(m, cmap="gray_r")
 plotRobotPose(pose, "red")
 plt.savefig("test.png")
-
+plt.show()
